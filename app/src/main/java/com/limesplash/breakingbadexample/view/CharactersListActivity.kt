@@ -5,15 +5,20 @@ import android.os.Bundle
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.GsonBuilder
 import com.hannesdorfmann.mosby3.mvi.MviActivity
+import com.jakewharton.rxbinding2.view.RxView
+import com.jakewharton.rxbinding2.widget.RxTextView
+import com.jakewharton.rxbinding2.widget.textChangeEvents
 import com.limesplash.breakingbadexample.R
 import com.limesplash.breakingbadexample.model.Character
 import com.limesplash.breakingbadexample.model.mvi.CharactersViewState
 import com.limesplash.breakingbadexample.presenter.MviCharactersPresenter
 import com.limesplash.breakingbadexample.util.ObservableDelegate
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_item_list.*
 import kotlinx.android.synthetic.main.item_list.*
+import java.util.concurrent.TimeUnit
 
 /**
  * An activity representing a list of Pings. This activity
@@ -29,12 +34,17 @@ class CharactersListActivity : MviBBCharactersView,  MviActivity<MviBBCharacters
 
     //hack to prevent multiple character selection on state restore
     private var selectedCharacterDisplayed = false
+
     private val characterClickObservable = ObservableDelegate<Character>()
+
+    private lateinit var searchTextObservable: Observable<String>
 
     override fun emitSelectCharacterEvent(): Observable<Character>  = characterClickObservable.map {
         selectedCharacterDisplayed = false
         it
     }
+
+    override fun emitSearchedCharaterName(): Observable<String> = searchTextObservable
 
 
     override fun updateViewState(charactersViewState: CharactersViewState) {
@@ -67,6 +77,7 @@ class CharactersListActivity : MviBBCharactersView,  MviActivity<MviBBCharacters
     }
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item_list)
@@ -82,6 +93,12 @@ class CharactersListActivity : MviBBCharactersView,  MviActivity<MviBBCharacters
 //        }
 
         setupRecyclerView(item_list, emptyList())
+
+        searchTextObservable = RxTextView.textChangeEvents(search)
+            .skip(1)
+            .debounce(500, TimeUnit.MILLISECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .map { search.text.toString() }
     }
 
 
