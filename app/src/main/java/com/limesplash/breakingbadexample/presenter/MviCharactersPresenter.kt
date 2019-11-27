@@ -29,14 +29,20 @@ class MviCharactersPresenter: MviBasePresenter<MviBBCharactersView, CharactersVi
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 
-        val search :Observable<List<Character>> = intent(MviBBCharactersView::emitSearchedCharaterName)
+        val search :Observable<List<Character>> = intent(MviBBCharactersView::emitSearchedCharacterName)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .map { filterCharacters(it) }
 
+        val filterBySeason = intent(MviBBCharactersView::emitSearchedSeason)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .map { filterBySeason(it) }
+
         val stateObservable = Observable.merge(
             loadCharacters.map { CharactersViewState(false,it) },
             search.map { CharactersViewState(false,it) },
+            filterBySeason.map { CharactersViewState(false,it) },
             selectCharacter.map { CharactersViewState(false,null, it) }
         ).startWith(CharactersViewState(true))
 
@@ -47,11 +53,19 @@ class MviCharactersPresenter: MviBasePresenter<MviBBCharactersView, CharactersVi
 
     }
 
+    private fun filterBySeason(season: String):  List<Character>? =
+        if(season.isNotEmpty()) {
+            characters?.filter { it.appearance.contains(season.toInt())}
+        } else {
+            characters
+        }
+
     private fun filterCharacters(name: String):  List<Character>? =
         if(name.isNotEmpty()) {
             characters?.filter { it.name.contains(name,true) }
-        } else
+        } else {
             characters
+        }
 
 
 }

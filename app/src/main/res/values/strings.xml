@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">BreakingBadExample</string>
     <string name="title_item_detail">Character Details</string>
+
+    <string-array name="bb_seasons">
+        <item></item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>m>
+        <item>5</item>
+    </string-array>
 </resources>

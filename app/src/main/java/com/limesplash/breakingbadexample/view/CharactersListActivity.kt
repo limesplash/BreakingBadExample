@@ -2,12 +2,12 @@ package com.limesplash.breakingbadexample.view
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Adapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.GsonBuilder
 import com.hannesdorfmann.mosby3.mvi.MviActivity
-import com.jakewharton.rxbinding2.view.RxView
+import com.jakewharton.rxbinding2.widget.RxAdapterView
 import com.jakewharton.rxbinding2.widget.RxTextView
-import com.jakewharton.rxbinding2.widget.textChangeEvents
 import com.limesplash.breakingbadexample.R
 import com.limesplash.breakingbadexample.model.Character
 import com.limesplash.breakingbadexample.model.mvi.CharactersViewState
@@ -19,6 +19,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_item_list.*
 import kotlinx.android.synthetic.main.item_list.*
 import java.util.concurrent.TimeUnit
+
 
 /**
  * An activity representing a list of Pings. This activity
@@ -39,13 +40,16 @@ class CharactersListActivity : MviBBCharactersView,  MviActivity<MviBBCharacters
 
     private lateinit var searchTextObservable: Observable<String>
 
+    private lateinit var selectedSeasonObservable: Observable<String>
+
     override fun emitSelectCharacterEvent(): Observable<Character>  = characterClickObservable.map {
         selectedCharacterDisplayed = false
         it
     }
 
-    override fun emitSearchedCharaterName(): Observable<String> = searchTextObservable
+    override fun emitSearchedCharacterName(): Observable<String> = searchTextObservable
 
+    override fun emitSearchedSeason(): Observable<String> = selectedSeasonObservable
 
     override fun updateViewState(charactersViewState: CharactersViewState) {
 
@@ -96,9 +100,12 @@ class CharactersListActivity : MviBBCharactersView,  MviActivity<MviBBCharacters
 
         searchTextObservable = RxTextView.textChangeEvents(search)
             .skip(1)
-            .debounce(500, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .map { search.text.toString() }
+
+        selectedSeasonObservable = RxAdapterView.itemSelections(seasons)
+            .subscribeOn(AndroidSchedulers.mainThread())
+            .map { seasons.selectedItem as String }
     }
 
 

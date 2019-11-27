@@ -8,7 +8,8 @@ import io.reactivex.Observable
 interface MviBBCharactersView:MvpView {
     fun emitFirstTimeLoadEvent(): Observable<Boolean>
     fun emitSelectCharacterEvent(): Observable<Character>
-    fun emitSearchedCharaterName(): Observable<String>
+    fun emitSearchedCharacterName(): Observable<String>
+    fun emitSearchedSeason(): Observable<String>
     fun updateViewState(charactersViewState: CharactersViewState)
 //    fun displayCharacterDetails(character: Character)
 
