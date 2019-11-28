@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 class MviCharactersPresenter: MviBasePresenter<MviBBCharactersView, CharactersViewState>() {
 
 
-    private var characters: List<Character>? = null
+    private var characters: List<Character> = emptyList()
 
     override fun bindIntents() {
         // Default loading of page
@@ -20,7 +20,7 @@ class MviCharactersPresenter: MviBasePresenter<MviBBCharactersView, CharactersVi
         val loadCharacters: Observable<List<Character>>  = intent(MviBBCharactersView::emitFirstTimeLoadEvent)
             .subscribeOn(Schedulers.io())
             .debounce(200, TimeUnit.MILLISECONDS)
-            .flatMap { GetCharactersUseCase.getBreakingBadCharacters() }
+            .flatMap { GetCharactersUseCase.getBreakingBadCharacters().onErrorReturn { emptyList() } }
             .doOnNext { characters = it }//remember for search
             .observeOn(AndroidSchedulers.mainThread())
 
@@ -55,14 +55,14 @@ class MviCharactersPresenter: MviBasePresenter<MviBBCharactersView, CharactersVi
 
     private fun filterBySeason(season: String):  List<Character>? =
         if(season.isNotEmpty()) {
-            characters?.filter { it.appearance.contains(season.toInt())}
+            characters.filter { it.appearance.contains(season.toInt())}
         } else {
             characters
         }
 
     private fun filterCharacters(name: String):  List<Character>? =
         if(name.isNotEmpty()) {
-            characters?.filter { it.name.contains(name,true) }
+            characters.filter { it.name.contains(name,true) }
         } else {
             characters
         }

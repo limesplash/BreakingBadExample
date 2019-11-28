@@ -55,7 +55,8 @@ class CharacterDetailActivity : AppCompatActivity() {
                 //
                 // http://developer.android.com/design/patterns/navigation.html#up-vs-back
 
-                navigateUpTo(Intent(this, CharactersListActivity::class.java))
+                //navigateUpTo(Intent(this, CharactersListActivity::class.java))
+                finish() //same behaviour as back button
                 true
             }
             else -> super.onOptionsItemSelected(item)

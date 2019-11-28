@@ -101,11 +101,13 @@ class CharactersListActivity : MviBBCharactersView,  MviActivity<MviBBCharacters
         searchTextObservable = RxTextView.textChangeEvents(search)
             .skip(1)
             .observeOn(AndroidSchedulers.mainThread())
+            .filter { search.text != null }
             .map { search.text.toString() }
 
         selectedSeasonObservable = RxAdapterView.itemSelections(seasons)
             .subscribeOn(AndroidSchedulers.mainThread())
-            .map { seasons.selectedItem as String }
+            .filter { seasons.selectedItem != null }
+            .map { seasons.selectedItem  as String }
     }
 
 
